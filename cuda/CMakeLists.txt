@@ -1,3 +1,8 @@
+cmake_minimum_required(VERSION 3.27)
+project(CUDA_TEST LANGUAGES CUDA CXX)
+include(CheckLanguage)
+check_language(CUDA)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 add_executable(0_add 0_add.cu)
 add_executable(1_check_dimension 1_check_dimension.cu)
 add_executable(2_grid_block 2_grid_block.cu)
