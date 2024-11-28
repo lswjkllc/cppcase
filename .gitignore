@@ -35,3 +35,4 @@
 local/
 .vscode/
 build/
+.venv/
