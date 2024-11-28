@@ -37,9 +37,8 @@ message(STATUS "CMAKE_CURRENT_LIST_DIR: ${CMAKE_CURRENT_LIST_DIR}")
 #     WITH_SOABI)
 # message(STATUS "----------------------------------------------use_cmake_parse_arguments(...)----------------------------------------------------------------------\n")
 
-find_package(Python COMPONENTS Interpreter Development.Module Development.SABIModule)
-message(STATUS "-- Python_FOUND<${Python_FOUND}>, Python_VERSION<${Python_VERSION}>")
-message(STATUS "-- Python_DIR<${Python_DIR}>, Python_INCLUDE_DIRS<${Python_INCLUDE_DIRS}>, Python_LIBRARIES<${Python_LIBRARIES}>")
+find_program(Python_EXECUTABLE python)
+message(STATUS "-- Python_EXECUTABLE<${Python_EXECUTABLE}>")
 
 execute_process(
     COMMAND
