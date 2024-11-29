@@ -13,6 +13,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmake/utils.cmake)
 
 # include(${CMAKE_CURRENT_LIST_DIR}/cmake/buildin-common.cmake)
 # include(${CMAKE_CURRENT_LIST_DIR}/cmake/buildin-deps.cmake)
+# include(${CMAKE_CURRENT_LIST_DIR}/cmake/buildin-ops.cmake)
 # include(${CMAKE_CURRENT_LIST_DIR}/cmake/buildin-props.cmake)
 message(STATUS "----------------------------------------------include(...)----------------------------------------------------------------------\n")
 
@@ -39,11 +40,13 @@ message(STATUS "----------------------------------------------include(...)------
 
 find_program(Python_EXECUTABLE python)
 message(STATUS "-- Python_EXECUTABLE<${Python_EXECUTABLE}>")
+find_package(Python COMPONENTS Interpreter Development.Module Development.SABIModule)
+message(STATUS "-- Python_FOUND<${Python_FOUND}>, Python_VERSION<${Python_VERSION}>, Python_INCLUDE_DIRS<${Python_INCLUDE_DIRS}>")
 
 run_python("import torch; print(torch.utils.cmake_prefix_path)" PYTORCH_OUT)
 list(APPEND CMAKE_PREFIX_PATH ${PYTORCH_OUT})
 find_package(Torch REQUIRED) # 需要设置 Torch_DIR 或者 CMAKE_PREFIX_PATH
-message(STATUS "-- TORCH_FOUND<${TORCH_FOUND}>")
+message(STATUS "-- TORCH_FOUND<${TORCH_FOUND}>, Torch_VERSION<${Torch_VERSION}>, TORCH_INCLUDE_DIRS<${TORCH_INCLUDE_DIRS}>")
 
 # run_python("import pybind11; print(pybind11.get_cmake_dir())" PYBIND11_OUT)
 # list(APPEND CMAKE_PREFIX_PATH "${PYBIND11_OUT}/../")
@@ -53,4 +56,5 @@ message(STATUS "-- TORCH_FOUND<${TORCH_FOUND}>")
 # add_executable(ops_lib ops_lib.cc)
 add_library(ops_lib SHARED ops_lib.cc)
 target_compile_features(ops_lib PRIVATE cxx_std_17)
+target_include_directories(ops_lib PRIVATE "${Python_INCLUDE_DIRS}")
 target_link_libraries(ops_lib "${TORCH_LIBRARIES}")

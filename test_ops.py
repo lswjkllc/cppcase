@@ -25,8 +25,10 @@ def test_add():
 
 
 def test_add2():
+    # uninstall
+    os.system("pip uninstall my_ops_mod -y")
     # clean build
-    os.system("rm -rf ./dist && rm -rf ./my_ops_mod.egg-info")
+    os.system("rm -rf ./build/* && rm -rf ./dist && rm -rf ./my_ops_mod.egg-info")
     # setup install
     os.system("python setup.py install")
 
@@ -41,5 +43,5 @@ def test_add2():
 
 if __name__ == "__main__":
     # test
-    # test_add()
+    test_add()
     test_add2()
