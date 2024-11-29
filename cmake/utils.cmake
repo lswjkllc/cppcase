@@ -100,3 +100,14 @@ function (use_cmake_parse_arguments GPU_MOD_NAME)
 
     message(STATUS "-- use_cmake_parse_arguments: GPU_UNPARSED_ARGUMENTS<${GPU_UNPARSED_ARGUMENTS}>")
 endfunction()
+
+function (run_python PYTHON_SCRIPT OUT)
+    execute_process(
+        COMMAND
+        "${Python_EXECUTABLE}" "-c" "${PYTHON_SCRIPT}"
+        OUTPUT_VARIABLE PYTHON_OUT
+        RESULT_VARIABLE PYTHON_ERROR_CODE
+        ERROR_VARIABLE PYTHON_STDERR
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+    set(${OUT} ${PYTHON_OUT} PARENT_SCOPE)
+endfunction()
