@@ -41,6 +41,9 @@ install(CODE "set(CMAKE_INSTALL_LOCAL_ONLY TRUE)" ALL_COMPONENTS)
 # "set(CMAKE_INSTALL_LOCAL_ONLY TRUE)": 是要执行的 CMake 代码。
 # 其中，set 是 CMake 中的一个命令，用于设置变量的值；
 # 其中，CMAKE_INSTALL_LOCAL_ONLY 是一个 CMake 变量，当设置为 TRUE 时，表示安装仅限于本地，不会影响系统的全局安装。
+
+install(CODE "set(CMAKE_INSTALL_LOCAL_ONLY FALSE)" COMPONENT vllm_flash_attn_c)
+# COMPONENT vllm_flash_attn_c 指定了安装组件的名称，这有助于在后续的安装步骤中对不同的组件进行细粒度的控制和管理。
 message(STATUS "----------------------------------------------install(CODE  ...)----------------------------------------------------------------------\n")
 
 message(STATUS "----------------------------------------------install(TARGETS  ...)----------------------------------------------------------------------")
@@ -75,11 +78,80 @@ message(STATUS "-- execute_process(COMMAND ...) PYTHON_ERROR_CODE<${PYTHON_ERROR
 message(STATUS "-- execute_process(COMMAND ...) PYTHON_STDERR<${PYTHON_STDERR}>")
 message(STATUS "----------------------------------------------execute_process(COMMAND ...)----------------------------------------------------------------------\n")
 
-message(STATUS "----------------------------------------------list(APPEND ...)----------------------------------------------------------------------")
-list(APPEND PYTHON_OUT_LIST "${PYTHON_OUT}-1" "${PYTHON_OUT}-2")
-list(APPEND PYTHON_OUT_LIST "${PYTHON_OUT}-3")
+message(STATUS "----------------------------------------------list(APPEND/REMOVE_ITEM/SORT ...)----------------------------------------------------------------------")
+list(APPEND PYTHON_OUT_LIST "3")
+list(APPEND PYTHON_OUT_LIST "1" "2")
 # list 是 cmake 中的一个命令，用于操作列表变量。
 # APPEND 是 list 命令的一个子命令，用于向列表中添加元素。
 # PYTHON_OUT_LIST 是一个列表变量，代码的作用是将一个个新的元素添加到这个列表中。
-message(STATUS "-- PYTHON_OUT_LIST<${PYTHON_OUT_LIST}>")
-message(STATUS "----------------------------------------------list(APPEND ...)----------------------------------------------------------------------\n")
+message(STATUS "-- list APPEND PYTHON_OUT_LIST<${PYTHON_OUT_LIST}>")
+
+list(REMOVE_ITEM PYTHON_OUT_LIST "${PYTHON_OUT}-1")
+message(STATUS "-- list REMOVE_ITEM PYTHON_OUT_LIST<${PYTHON_OUT_LIST}>")
+
+list(SORT PYTHON_OUT_LIST COMPARE NATURAL ORDER ASCENDING)
+message(STATUS "-- list.SORT PYTHON_OUT_LIST<${PYTHON_OUT_LIST}>")
+message(STATUS "----------------------------------------------list(APPEND/REMOVE_ITEM/SORT ...)----------------------------------------------------------------------\n")
+
+message(STATUS "----------------------------------------------include and create directory----------------------------------------------------------------------")
+include(FetchContent)
+# 引入了 FetchContent 模块，该模块允许你在 CMake 项目中自动下载和包含外部依赖项。
+
+get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}" ABSOLUTE)
+# 使用 get_filename_component 函数获取当前源目录的绝对路径，并将其存储在变量 PROJECT_ROOT_DIR 中。
+# CMAKE_CURRENT_SOURCE_DIR 是 CMake 内置变量，表示当前处理的 CMakeLists.txt 文件所在的目录。
+
+set(FETCHCONTENT_BASE_DIR "${PROJECT_ROOT_DIR}/.deps")
+# 将 FETCHCONTENT_BASE_DIR 变量设置为项目根目录下的 .deps 目录。
+# 之后，所有通过 FetchContent 下载的依赖项都会存储在这个目录中。
+
+file(MAKE_DIRECTORY "${FETCHCONTENT_BASE_DIR}")
+# 使用 file 命令的 MAKE_DIRECTORY 选项来创建一个目录。
+# FETCHCONTENT_BASE_DIR 是一个变量，表示 FetchContent 模块下载依赖项时使用的目录。
+# include(FetchContent) 执行后，FETCHCONTENT_BASE_DIR 变量将被自动填充为：<当前执行目录>/_deps/
+message(STATUS "----------------------------------------------include and create directory----------------------------------------------------------------------\n")
+
+message(STATUS "----------------------------------------------FetchContent_Declare and FetchContent_MakeAvailable----------------------------------------------------------------------")
+SET(CUTLASS_ENABLE_HEADERS_ONLY ON CACHE BOOL "Enable only the header library")
+# CUTLASS_ENABLE_HEADERS_ONLY: 这是一个缓存变量，用于指示是否仅使用CUTLASS的头文件库。
+# ON: 设置为ON表示启用仅头文件模式。
+# CACHE BOOL: 将该变量存储在CMake的缓存中，并将其类型定义为布尔值。
+# "Enable only the header library": 这是该变量的描述，用于在CMake GUI或命令行中提供帮助信息。
+
+set(CUTLASS_REVISION "v3.5.1" CACHE STRING "CUTLASS revision to use")
+# CUTLASS_REVISION: 这是一个缓存变量，用于指定要使用的CUTLASS版本。
+# "v3.5.1": 这是具体的版本号，表示要使用CUTLASS的v3.5.1版本。
+# CACHE STRING: 将该变量存储在CMake的缓存中，并将其类型定义为字符串。
+# "CUTLASS revision to use": 这是该变量的描述，用于在CMake GUI或命令行中提供帮助信息。
+
+# include(FetchContent)
+# 使用 FetchContent_Declare 和 FetchContent_MakeAvailable 命令必须先引入 FetchContent 模块。
+FetchContent_Declare(
+    cutlass
+    GIT_REPOSITORY https://github.com/nvidia/cutlass.git
+    GIT_TAG v3.5.1
+    GIT_PROGRESS TRUE
+    GIT_SHALLOW TRUE
+)
+message(STATUS "--> cutlass_POPULATED: ${cutlass_POPULATED}")
+message(STATUS "--> cutlass_SOURCE_DIR: ${cutlass_SOURCE_DIR}")
+message(STATUS "--> cutlass_BINARY_DIR: ${cutlass_BINARY_DIR}")
+# FetchContent_Declare: 声明一个外部内容，这里是指CUTLASS库。
+# cutlass: 这是声明的名称，用于后续引用。
+# GIT_REPOSITORY: 指定CUTLASS库的Git仓库地址。
+# GIT_TAG: 指定要获取的特定版本或标签，这里设置为v3.5.1。
+# GIT_PROGRESS TRUE: 启用Git操作的进度显示。
+# GIT_SHALLOW TRUE: 启用浅克隆（shallow clone），只获取指定标签或分支的最新提交，而不获取整个仓库的历史记录（可以加快下载速度）。
+
+FetchContent_MakeAvailable(cutlass)
+message(STATUS "--> cutlass_POPULATED: ${cutlass_POPULATED}")
+message(STATUS "--> cutlass_SOURCE_DIR: ${cutlass_SOURCE_DIR}")
+message(STATUS "--> cutlass_BINARY_DIR: ${cutlass_BINARY_DIR}")
+# FetchContent_MakeAvailable: 使声明的外部内容可用，即下载并配置CUTLASS库。
+# FetchContent_MakeAvailable 内部工作流程：
+#       1. 检查依赖是否可用：检查 cutlass_POPULATED 变量；
+#       2. if(NOT cutlass_POPULATED) ：调用 FetchContent_Populate 下载和解压外部项目；
+#       3. 设置源码目录：FetchContent_Populate 完成后，会设置源码目录的路径，以便后续的配置和构建步骤使用；
+#       4. 配置和构建依赖：进入依赖项目的源码目录，并调用 add_subdirectory 来配置和构建该项目；
+#       5. 标记依赖已可用：set(cutlass_POPULATED TRUE) 
+message(STATUS "----------------------------------------------FetchContent_Declare and FetchContent_MakeAvailable----------------------------------------------------------------------\n")

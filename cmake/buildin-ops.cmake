@@ -23,3 +23,7 @@ else()
     message("The version are not equal!")
 endif()
 message(STATUS "----------------------------------------------STREQUAL and EQUAL and VERSION_EQUAL----------------------------------------------------------------------\n")
+
+message(STATUS "----------------------------------------------GREATER_EQUAL and VERSION_GREATER_EQUAL----------------------------------------------------------------------")
+
+message(STATUS "----------------------------------------------GREATER_EQUAL and VERSION_GREATER_EQUAL----------------------------------------------------------------------\/")

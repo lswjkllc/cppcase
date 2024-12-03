@@ -111,3 +111,46 @@ function (run_python PYTHON_SCRIPT OUT)
         OUTPUT_STRIP_TRAILING_WHITESPACE)
     set(${OUT} ${PYTHON_OUT} PARENT_SCOPE)
 endfunction()
+
+#
+# For a specific file set the `-gencode` flag in compile options conditionally 
+# for the CUDA language. 
+#
+# Example:
+#   set_gencode_flag_for_srcs(
+#     SRCS "foo.cu"
+#     ARCH "compute_75"
+#     CODE "sm_75")
+#   adds: "-gencode arch=compute_75,code=sm_75" to the compile options for 
+#    `foo.cu` (only for the CUDA language).
+#
+macro(set_gencode_flag_for_srcs)
+    set(options)
+    # options: 定义了一个空列表，表示没有布尔选项。
+
+    set(oneValueArgs ARCH CODE)
+    # oneValueArgs: 定义了两个单值参数ARCH和CODE，这些参数在调用时需要提供一个值。
+
+    set(multiValueArgs SRCS)
+    # multiValueArgs: 定义了一个多值参数SRCS，表示可以传入多个源文件。
+
+    cmake_parse_arguments(arg "${options}" "${oneValueArgs}"
+                            "${multiValueArgs}" ${ARGN} )
+    # cmake_parse_arguments: 这是一个CMake函数，用于解析传入的参数。解析后的结果存储在arg变量中。
+
+    set(_FLAG -gencode arch=${arg_ARCH},code=${arg_CODE})
+    # _FLAG: 根据解析后的ARCH和CODE参数生成一个编译选项字符串。这个字符串将被用于CUDA编译。
+
+    set_property(
+        SOURCE ${arg_SRCS}
+        APPEND PROPERTY
+        COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:CUDA>:${_FLAG}>"
+    )
+    # set_property: 用于设置源文件的属性。
+    # SOURCE ${arg_SRCS}: 指定要设置属性的源文件列表。
+    # APPEND PROPERTY: 表示将属性追加到现有属性中。
+    # COMPILE_OPTIONS: 指定要设置的属性为编译选项。
+    # "$<$<COMPILE_LANGUAGE:CUDA>:${_FLAG}>: 这是一个条件表达式，表示只有在编译语言为CUDA时，才应用_FLAG编译选项。
+
+    message(STATUS "-- Setting gencode flag for ${arg_SRCS}: ${_FLAG}")
+endmacro(set_gencode_flag_for_srcs)
