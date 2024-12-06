@@ -2,7 +2,11 @@ cmake_minimum_required(VERSION 3.10)
 project(cpplangcase LANGUAGES CXX)
 
 message(STATUS "CMAKE_CURRENT_LIST_DIR: ${CMAKE_CURRENT_LIST_DIR}")
-# CMAKE_CURRENT_LIST_DIR 是 CMake 提供的一个内置变量，用于表示当前正在处理的 CMakeLists.txt 文件的完整路径。
+# CMAKE_CURRENT_LIST_DIR 是 CMake 提供的一个内置变量，用于表示当前正在处理的 cmake 文件的完整路径。
+# 这个变量在 CMake 处理构建脚本时自动设置，不需要用户手动设置；是一个只读变量，用户不能直接修改它的值。
+
+message(STATUS "CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
+# CMAKE_CURRENT_SOURCE_DIR 是 CMake 提供的一个内置变量，用于表示当前正在处理的 CMakeLists.txt 文件的完整路径。
 # 这个变量在 CMake 处理构建脚本时自动设置，不需要用户手动设置；是一个只读变量，用户不能直接修改它的值。
 
 message(STATUS "----------------------------------------------include(...)----------------------------------------------------------------------")
