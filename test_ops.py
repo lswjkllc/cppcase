@@ -30,7 +30,7 @@ def test_add2():
     # clean build
     os.system("rm -rf ./build/* && rm -rf ./dist && rm -rf ./my_ops_mod.egg-info")
     # setup install
-    os.system("python setup.py install")
+    os.system("python setup_old.py install")
 
     import my_ops_mod
     a = torch.rand([10, 10, 3])

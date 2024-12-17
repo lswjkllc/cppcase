@@ -48,57 +48,34 @@ macro (find_python_from_executable EXECUTABLE SUPPORTED_VERSIONS)
 endmacro()
 
 #
-# Define a target named `GPU_MOD_NAME` for a single extension. The
-# arguments are:
-#
-# DESTINATION <dest>         - Module destination directory.
-# LANGUAGE <lang>            - The GPU language for this module, e.g CUDA, HIP,
-#                              etc.
-# SOURCES <sources>          - List of source files relative to CMakeLists.txt
-#                              directory.
-#
-# Optional arguments:
-#
-# ARCHITECTURES <arches>     - A list of target GPU architectures in cmake
-#                              format.
-#                              Refer `CMAKE_CUDA_ARCHITECTURES` documentation
-#                              and `CMAKE_HIP_ARCHITECTURES` for more info.
-#                              ARCHITECTURES will use cmake's defaults if
-#                              not provided.
-# COMPILE_FLAGS <flags>      - Extra compiler flags passed to NVCC/hip.
-# INCLUDE_DIRECTORIES <dirs> - Extra include directories.
-# LIBRARIES <libraries>      - Extra link libraries.
-# WITH_SOABI                 - Generate library with python SOABI suffix name.
-# USE_SABI <version>         - Use python stable api <version>
-#
-# Note: optimization level/debug info is set via cmake build type.
-#
-function (use_cmake_parse_arguments GPU_MOD_NAME)
+# Parse cmake function arguments
+# 
+function (use_cmake_parse_arguments PREFIX_MOD_NAME)
     cmake_parse_arguments(
         PARSE_ARGV 1
-        GPU
+        PREFIX
         "WITH_SOABI"
         "DESTINATION;LANGUAGE;USE_SABI"
         "SOURCES;ARCHITECTURES;COMPILE_FLAGS;INCLUDE_DIRECTORIES;LIBRARIES")
     # cmake_parse_arguments 是 CMake 中用于解析函数或宏参数的预定义命令。它能够解析函数或宏的参数，并定义一组变量来保存相应选项的值。
     # PARSE_ARGV 1: 表示从第一个参数开始解析。
-    # GPU: 这是一个前缀，用于所有解析后的变量。例如，如果解析出一个名为 DESTINATION 的参数，那么生成的变量将是 GPU_DESTINATION。
-    # "WITH_SOABI": 这是一个可选的布尔参数。如果提供了这个参数，那么 GPU_WITH_SOABI 将被设置为 TRUE，否则为 FALSE。
-    # "DESTINATION;LANGUAGE;USE_SABI": 这些是可选的单值参数。每个参数如果被提供，将生成一个对应的变量，如 GPU_DESTINATION、GPU_LANGUAGE 和 GPU_USE_SABI。
-    # "SOURCES;ARCHITECTURES;COMPILE_FLAGS;INCLUDE_DIRECTORIES;LIBRARIES": 这些是可选的多值参数。每个参数如果被提供，将生成一个对应的列表变量，如 GPU_SOURCES、GPU_ARCHITECTURES 等。
+    # PREFIX: 这是一个前缀，用于所有解析后的变量。例如，如果解析出一个名为 DESTINATION 的参数，那么生成的变量将是 PREFIX_DESTINATION。
+    # "WITH_SOABI": 这是一个可选的布尔参数。如果提供了这个参数，那么 PREFIX_WITH_SOABI 将被设置为 TRUE，否则为 FALSE。
+    # "DESTINATION;LANGUAGE;USE_SABI": 这些是可选的单值参数。每个参数如果被提供，将生成一个对应的变量，如 PREFIX_DESTINATION、PREFIX_LANGUAGE 和 PREFIX_USE_SABI。
+    # "SOURCES;ARCHITECTURES;COMPILE_FLAGS;INCLUDE_DIRECTORIES;LIBRARIES": 这些是可选的多值参数。每个参数如果被提供，将生成一个对应的列表变量，如 PREFIX_SOURCES、PREFIX_ARCHITECTURES 等。
     
-    message(STATUS "-- use_cmake_parse_arguments: GPU_MOD_NAME<${GPU_MOD_NAME}>")
-    message(STATUS "-- use_cmake_parse_arguments: GPU_WITH_SOABI<${GPU_WITH_SOABI}>")
-    message(STATUS "-- use_cmake_parse_arguments: GPU_DESTINATION<${GPU_DESTINATION}>")
-    message(STATUS "-- use_cmake_parse_arguments: GPU_LANGUAGE<${GPU_LANGUAGE}>")
-    message(STATUS "-- use_cmake_parse_arguments: GPU_USE_SABI<${GPU_USE_SABI}>")
-    message(STATUS "-- use_cmake_parse_arguments: GPU_SOURCES<${GPU_SOURCES}>")
-    message(STATUS "-- use_cmake_parse_arguments: GPU_ARCHITECTURES<${GPU_ARCHITECTURES}>")
-    message(STATUS "-- use_cmake_parse_arguments: GPU_COMPILE_FLAGS<${GPU_COMPILE_FLAGS}>")
-    message(STATUS "-- use_cmake_parse_arguments: GPU_INCLUDE_DIRECTORIES<${GPU_INCLUDE_DIRECTORIES}>")
-    message(STATUS "-- use_cmake_parse_arguments: GPU_LIBRARIES<${GPU_LIBRARIES}>")
+    message(STATUS "-- use_cmake_parse_arguments: PREFIX_MOD_NAME<${PREFIX_MOD_NAME}>")
+    message(STATUS "-- use_cmake_parse_arguments: PREFIX_WITH_SOABI<${PREFIX_WITH_SOABI}>")
+    message(STATUS "-- use_cmake_parse_arguments: PREFIX_DESTINATION<${PREFIX_DESTINATION}>")
+    message(STATUS "-- use_cmake_parse_arguments: PREFIX_LANGUAGE<${PREFIX_LANGUAGE}>")
+    message(STATUS "-- use_cmake_parse_arguments: PREFIX_USE_SABI<${PREFIX_USE_SABI}>")
+    message(STATUS "-- use_cmake_parse_arguments: PREFIX_SOURCES<${PREFIX_SOURCES}>")
+    message(STATUS "-- use_cmake_parse_arguments: PREFIX_ARCHITECTURES<${PREFIX_ARCHITECTURES}>")
+    message(STATUS "-- use_cmake_parse_arguments: PREFIX_COMPILE_FLAGS<${PREFIX_COMPILE_FLAGS}>")
+    message(STATUS "-- use_cmake_parse_arguments: PREFIX_INCLUDE_DIRECTORIES<${PREFIX_INCLUDE_DIRECTORIES}>")
+    message(STATUS "-- use_cmake_parse_arguments: PREFIX_LIBRARIES<${PREFIX_LIBRARIES}>")
 
-    message(STATUS "-- use_cmake_parse_arguments: GPU_UNPARSED_ARGUMENTS<${GPU_UNPARSED_ARGUMENTS}>")
+    message(STATUS "-- use_cmake_parse_arguments: PREFIX_UNPARSED_ARGUMENTS<${PREFIX_UNPARSED_ARGUMENTS}>")
 endfunction()
 
 function (run_python PYTHON_SCRIPT OUT)
@@ -154,3 +131,108 @@ macro(set_gencode_flag_for_srcs)
 
     message(STATUS "-- Setting gencode flag for ${arg_SRCS}: ${_FLAG}")
 endmacro(set_gencode_flag_for_srcs)
+
+#
+# Define a target named `TORCH_MOD_NAME` for a single extension. The
+# arguments are:
+#
+# DESTINATION <dest>         - Module destination directory.
+# LANGUAGE <lang>            - The GPU language for this module, e.g CUDA, HIP,
+#                              etc.
+# SOURCES <sources>          - List of source files relative to CMakeLists.txt
+#                              directory.
+#
+# Optional arguments:
+#
+# ARCHITECTURES <arches>     - A list of target GPU architectures in cmake
+#                              format.
+#                              Refer `CMAKE_CUDA_ARCHITECTURES` documentation
+#                              and `CMAKE_HIP_ARCHITECTURES` for more info.
+#                              ARCHITECTURES will use cmake's defaults if
+#                              not provided.
+# COMPILE_FLAGS <flags>      - Extra compiler flags passed to NVCC/hip.
+# INCLUDE_DIRECTORIES <dirs> - Extra include directories.
+# LIBRARIES <libraries>      - Extra link libraries.
+# WITH_SOABI                 - Generate library with python SOABI suffix name.
+# USE_SABI <version>         - Use python stable api <version>
+#
+# Note: optimization level/debug info is set via cmake build type.
+#
+function (define_torch_extension_target TORCH_MOD_NAME)
+  cmake_parse_arguments(PARSE_ARGV 1
+    TORCH
+    "WITH_SOABI"
+    "DESTINATION;LANGUAGE;USE_SABI"
+    "SOURCES;ARCHITECTURES;COMPILE_FLAGS;INCLUDE_DIRECTORIES;LIBRARIES")
+
+  # Add hipify preprocessing step when building with HIP/ROCm.
+  if (TORCH_LANGUAGE STREQUAL "HIP")
+    hipify_sources_target(TORCH_SOURCES ${TORCH_MOD_NAME} "${TORCH_SOURCES}")
+  endif()
+
+  if (TORCH_WITH_SOABI)
+    set(TORCH_WITH_SOABI WITH_SOABI)
+  else()
+    set(TORCH_WITH_SOABI)
+  endif()
+
+  if (TORCH_USE_SABI)
+    Python_add_library(${TORCH_MOD_NAME} MODULE USE_SABI ${TORCH_USE_SABI} ${TORCH_WITH_SOABI} "${TORCH_SOURCES}")
+  else()
+    Python_add_library(${TORCH_MOD_NAME} MODULE ${TORCH_WITH_SOABI} "${TORCH_SOURCES}")
+  endif()
+
+  if (TORCH_LANGUAGE STREQUAL "HIP")
+    # Make this target dependent on the hipify preprocessor step.
+    add_dependencies(${TORCH_MOD_NAME} hipify${TORCH_MOD_NAME})
+  endif()
+
+  if (TORCH_ARCHITECTURES)
+    set_target_properties(${TORCH_MOD_NAME} PROPERTIES
+      ${TORCH_LANGUAGE}_ARCHITECTURES "${TORCH_ARCHITECTURES}")
+  endif()
+
+  set_property(TARGET ${TORCH_MOD_NAME} PROPERTY CXX_STANDARD 17)
+
+  target_compile_options(${TORCH_MOD_NAME} PRIVATE
+    $<$<COMPILE_LANGUAGE:${TORCH_LANGUAGE}>:${TORCH_COMPILE_FLAGS}>)
+
+  target_compile_definitions(${TORCH_MOD_NAME} PRIVATE
+    "-DTORCH_EXTENSION_NAME=${TORCH_MOD_NAME}")
+
+  target_include_directories(${TORCH_MOD_NAME} PRIVATE csrc
+    ${TORCH_INCLUDE_DIRECTORIES})
+
+  target_link_libraries(${TORCH_MOD_NAME} PRIVATE torch ${TORCH_LIBRARIES})
+
+  # Don't use `TORCH_LIBRARIES` for CUDA since it pulls in a bunch of
+  # dependencies that are not necessary and may not be installed.
+  if (TORCH_LANGUAGE STREQUAL "CUDA")
+    if ("${CUDA_CUDA_LIB}" STREQUAL "")
+      set(CUDA_CUDA_LIB "${CUDA_CUDA_LIBRARY}")
+    endif()
+    target_link_libraries(${TORCH_MOD_NAME} PRIVATE ${CUDA_CUDA_LIB}
+      ${CUDA_LIBRARIES})
+  else()
+    target_link_libraries(${TORCH_MOD_NAME} PRIVATE ${TORCH_LIBRARIES})
+  endif()
+
+  install(TARGETS ${TORCH_MOD_NAME} LIBRARY DESTINATION ${TORCH_DESTINATION} COMPONENT ${TORCH_MOD_NAME})
+endfunction()
+
+macro (find_python_from_executable EXECUTABLE SUPPORTED_VERSIONS)
+  file(REAL_PATH ${EXECUTABLE} EXECUTABLE)
+  set(Python_EXECUTABLE ${EXECUTABLE})
+  find_package(Python COMPONENTS Interpreter Development.Module Development.SABIModule)
+  if (NOT Python_FOUND)
+    message(FATAL_ERROR "Unable to find python matching: ${EXECUTABLE}.")
+  endif()
+  set(_VER "${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}")
+  set(_SUPPORTED_VERSIONS_LIST ${SUPPORTED_VERSIONS} ${ARGN})
+  if (NOT _VER IN_LIST _SUPPORTED_VERSIONS_LIST)
+    message(FATAL_ERROR
+      "Python version (${_VER}) is not one of the supported versions: "
+      "${_SUPPORTED_VERSIONS_LIST}.")
+  endif()
+  message(STATUS "Found python matching: ${EXECUTABLE}.")
+endmacro()
