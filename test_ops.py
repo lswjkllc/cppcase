@@ -9,7 +9,7 @@ def test_add():
     # clean build
     os.system("rm -rf ./build/*")
     # cmake 执行 cd build && cmake ..
-    os.system("cd ./build/ && cmake .. -Wno-dev")
+    os.system("cd ./build/ && cmake .. -Wno-dev -DCPPCASE_PYTHON_EXECUTABLE=$(which python)")
     # compile
     os.system("cd ./build/ && make")
 
